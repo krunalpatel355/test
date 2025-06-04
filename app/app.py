@@ -9,7 +9,7 @@ from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__, 
-           template_folder='templates/html',
+           template_folder='templates',
            static_folder='static')
 
 # Load configuration
