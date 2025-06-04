@@ -7,6 +7,24 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
+      - MONGO_URI=mongodb://mongodb:27017/myapp
     volumes:
       - .:/app
+    depends_on:
+      - mongodb
     restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=myapp
+    volumes:
+      - mongodb_data:/data/db
+    command: mongod --quiet
+
+volumes:
+  mongodb_data:
