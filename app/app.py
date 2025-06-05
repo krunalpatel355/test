@@ -21,6 +21,14 @@ def home():
     """Render the home page."""
     return render_template('index.html')
 
+
+
+
+
+
+
+
+
 @app.route('/health')
 def health_check():
     """Health check endpoint for monitoring."""
