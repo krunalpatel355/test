@@ -9,6 +9,45 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <style>
+        .category-list {
+            margin-bottom: 20px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .category-item:hover {
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+        .category-item.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .category-count {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            min-width: 30px;
+            text-align: center;
+        }
+        .category-item:not(.active) .category-count {
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+        .location-filter select {
+            border-radius: 6px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -47,20 +86,22 @@
                 <div class="left-sidebar">
                     <h2 class="sidebar-title">Categories</h2>
                     <div class="category-list">
-                        <div class="category-item active">All Events</div>
-                        <div class="category-item">Music Festivals</div>
-                        <div class="category-item">Food & Wine</div>
-                        <div class="category-item">Workshops</div>
-                        <div class="category-item">Sports</div>
-                        <div class="category-item">Tech & Business</div>
+                        <div class="category-item active" data-category="all">
+                            All Events <span class="category-count">{{ total_events }}</span>
+                        </div>
+                        {% for category in categories %}
+                        <div class="category-item" data-category="{{ category._id }}">
+                            {{ category._id }} <span class="category-count">{{ category.count }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
 
                     <h2 class="sidebar-title mt-4">Location</h2>
                     <div class="location-filter">
                         <select class="form-select" id="locationFilter">
-                            <option value="">All Locations</option>
+                            <option value="all">All Locations</option>
                             {% for location in locations %}
-                            <option value="{{ location }}">{{ location }}</option>
+                            <option value="{{ location._id }}">{{ location._id }} ({{ location.count }})</option>
                             {% endfor %}
                         </select>
                     </div>

@@ -60,14 +60,41 @@ def events():
     # Calculate total pages
     total_pages = (total_events + per_page - 1) // per_page
     
-    # Get unique locations for filter
-    locations = events_collection.distinct('city_name')
+    # Get categories (event_types) with counts
+    pipeline_categories = [
+        {
+            '$group': {
+                '_id': '$event_type',
+                'count': {'$sum': 1}
+            }
+        },
+        {
+            '$sort': {'_id': 1}  # Sort alphabetically
+        }
+    ]
+    categories = list(events_collection.aggregate(pipeline_categories))
+    
+    # Get locations (cities) with counts
+    pipeline_locations = [
+        {
+            '$group': {
+                '_id': '$city_name',
+                'count': {'$sum': 1}
+            }
+        },
+        {
+            '$sort': {'_id': 1}  # Sort alphabetically
+        }
+    ]
+    locations = list(events_collection.aggregate(pipeline_locations))
     
     return render_template('events.html', 
                          events=events_list,
                          current_page=page,
                          total_pages=total_pages,
-                         locations=locations)
+                         categories=categories,
+                         locations=locations,
+                         total_events=total_events)
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
