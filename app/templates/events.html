@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEPIS - Explore Events</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="logo.png" alt="TEPIS Logo" class="brand-logo">
+                TEPIS
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('events') }}"  >Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="event_details.html">Trip Planning</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#about">About</a></li>
+                </ul>
+                
+                <div class="search-container me-3">
+                    <input type="text" class="search-input" placeholder="Search for events, venues, or organizers...">
+                </div>
+                  <div class="user-menu">
+                    <i class="fas fa-bell" style="color: #64748b; font-size: 1.2rem;"></i>
+                    <a href="{{ url_for('auth') }}" class="user-avatar" style="text-decoration: none; color: inherit;">A</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Events Header -->
+    <section class="events-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="events-title">Discover Events</h1>
+                    <p class="events-subtitle">Find the perfect event that matches your interests</p>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <p class="results-count">120 events found</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Filters and Listings -->
+    <section class="events-container">
+        <div class="container">
+            <div class="row">
+                <!-- Filters Sidebar -->
+                <div class="col-lg-3">
+                    <div class="filters-sidebar">
+                        <div class="filter-section">
+                            <h3 class="filter-title">Event Categories</h3>
+                            <div class="category-filters">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="musicFestival" checked>
+                                    <label class="form-check-label" for="musicFestival">Music Festivals</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="foodEvents" checked>
+                                    <label class="form-check-label" for="foodEvents">Food & Wine Events</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="outdoorEvents">
+                                    <label class="form-check-label" for="outdoorEvents">Outdoor Adventures</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="techConferences">
+                                    <label class="form-check-label" for="techConferences">Tech Conferences</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="workshops">
+                                    <label class="form-check-label" for="workshops">Workshops & Classes</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <h3 class="filter-title">Date Range</h3>
+                            <div class="filter-group">
+                                <label for="startDate">Start Date:</label>
+                                <input type="date" id="startDate" class="filter-input" value="2025-06-09">
+                            </div>
+                            <div class="filter-group">
+                                <label for="endDate">End Date:</label>
+                                <input type="date" id="endDate" class="filter-input" value="2025-06-12">
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <h3 class="filter-title">Location</h3>
+                            <div class="filter-group">
+                                <label for="location">Search Location:</label>
+                                <input type="text" id="location" class="filter-input" placeholder="New York, USA" value="New York, USA">
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <h3 class="filter-title">Price Range</h3>
+                            <div class="price-filters">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="freeEntry">
+                                    <label class="form-check-label" for="freeEntry">Free Entry</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="under50" checked>
+                                    <label class="form-check-label" for="under50">Under $50</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="under100" checked>
+                                    <label class="form-check-label" for="under100">$50 - $100</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="under200">
+                                    <label class="form-check-label" for="under200">$100 - $200</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="over200">
+                                    <label class="form-check-label" for="over200">$200+</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="filter-btn">Apply Filters</button>
+                    </div>
+                </div>
+
+                <!-- Events List -->
+                <div class="col-lg-9">
+                    <div class="events-list">
+                        <!-- Event 1 -->
+                        <div class="event-item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="event-image-wrapper">
+                                        <div class="event-image-large" style="background-image: url('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8Y29uY2VydHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60');"></div>
+                                        <div class="event-overlay">
+                                            <span class="event-category">Concert</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="event-details">
+                                        <h2 class="event-title-large">Concert Nightlife</h2>
+                                        <p class="event-description">Experience an unforgettable night of live music with top artists in downtown NYC.</p>
+                                        <div class="event-features">
+                                            <span class="feature-tag">VIP Access</span>
+                                            <span class="feature-tag">Exclusive Lounge</span>
+                                        </div>
+                                        <div class="event-location">
+                                            <div class="location-item">
+                                                <span class="location-label">Location:</span>
+                                                <span class="location-value">6.5 miles from downtown</span>
+                                            </div>
+                                            <div class="location-item">
+                                                <span class="location-label">Date:</span>
+                                                <span class="location-value">Jun 9, 2025 · 8:00 PM</span>
+                                            </div>
+                                        </div>
+                                        <div class="event-actions">
+                                            <button class="action-btn">Add to Watchlist</button>
+                                            <button class="action-btn">Share</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="event-pricing">
+                                        <span class="rating-badge outstanding-badge">
+                                            <i class="fas fa-star"></i> 4.9
+                                        </span>
+                                        <h3 class="price-large">$150</h3>
+                                        <p class="price-note">3 nights, 2 attendees</p>
+                                        <button class="view-tickets-btn" onclick="window.location.href='event_details.html'">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 2 -->
+                        <div class="event-item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="event-image-wrapper">
+                                        <div class="event-image-large" style="background-image: url('https://images.unsplash.com/photo-1527224538127-2104bb71c51b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8Y29tZWR5JTIwc2hvd3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60');"></div>
+                                        <div class="event-overlay">
+                                            <span class="event-category">Comedy</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="event-details">
+                                        <h2 class="event-title-large">Comedy Club Live</h2>
+                                        <p class="event-description">Laugh the night away with top comedians performing their best material at this intimate venue.</p>
+                                        <div class="event-features">
+                                            <span class="feature-tag">No Mininum</span>
+                                            <span class="feature-tag">Interactive Comedy Show</span>
+                                        </div>
+                                        <div class="event-location">
+                                            <div class="location-item">
+                                                <span class="location-label">Location:</span>
+                                                <span class="location-value">1.2 miles from city center</span>
+                                            </div>
+                                            <div class="location-item">
+                                                <span class="location-label">Date:</span>
+                                                <span class="location-value">Jun 10, 2025 · 7:30 PM</span>
+                                            </div>
+                                        </div>
+                                        <div class="event-actions">
+                                            <button class="action-btn">Add to Watchlist</button>
+                                            <button class="action-btn">Share</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="event-pricing">
+                                        <span class="rating-badge">
+                                            <i class="fas fa-star"></i> 4.6
+                                        </span>
+                                        <h3 class="price-large">$80</h3>
+                                        <p class="price-note">1 night, 2 attendees</p>
+                                        <button class="view-tickets-btn" onclick="window.location.href='event_details.html'">View Tickets</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 3 -->
+                        <div class="event-item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="event-image-wrapper">
+                                        <div class="event-image-large" style="background-image: url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8bXVzaWMlMjBmZXN0aXZhbHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60');"></div>
+                                        <div class="event-overlay">
+                                            <span class="event-category">Festival</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="event-details">
+                                        <h2 class="event-title-large">Exclusive Music Fest</h2>
+                                        <p class="event-description">A premium music festival experience featuring world-class artists and luxurious amenities.</p>
+                                        <div class="event-features">
+                                            <span class="feature-tag">Early Bird Discount</span>
+                                            <span class="feature-tag">Deluxe Suite</span>
+                                        </div>
+                                        <div class="event-location">
+                                            <div class="location-item">
+                                                <span class="location-label">Location:</span>
+                                                <span class="location-value">9.5 miles from event center</span>
+                                            </div>
+                                            <div class="location-item">
+                                                <span class="location-label">Date:</span>
+                                                <span class="location-value">Jun 11-12, 2025</span>
+                                            </div>
+                                        </div>
+                                        <div class="event-actions">
+                                            <button class="action-btn">Add to Watchlist</button>
+                                            <button class="action-btn">Share</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="event-pricing">
+                                        <span class="rating-badge recommended-badge">
+                                            <i class="fas fa-star"></i> 4.8
+                                        </span>
+                                        <h3 class="price-large">$350</h3>
+                                        <p class="price-note">2 nights, 2 attendees</p>
+                                        <button class="view-tickets-btn">Explore Packages</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 4 -->
+                        <div class="event-item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="event-image-wrapper">
+                                        <div class="event-image-large" style="background-image: url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8YmVhY2glMjBwYXJ0eXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60');"></div>
+                                        <div class="event-overlay">
+                                            <span class="event-category">Beach Party</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="event-details">
+                                        <h2 class="event-title-large">Summer Beach Party</h2>
+                                        <p class="event-description">Enjoy the sun, sand, and surf with live DJs, refreshing drinks, and beachfront activities.</p>
+                                        <div class="event-features">
+                                            <span class="feature-tag">No Hidden Fees</span>
+                                            <span class="feature-tag">Beachfront Cabanas</span>
+                                        </div>
+                                        <div class="event-location">
+                                            <div class="location-item">
+                                                <span class="location-label">Location:</span>
+                                                <span class="location-value">On the Beachfront</span>
+                                            </div>
+                                            <div class="location-item">
+                                                <span class="location-label">Date:</span>
+                                                <span class="location-value">Jun 12, 2025 · 12:00 PM</span>
+                                            </div>
+                                        </div>
+                                        <div class="event-actions">
+                                            <button class="action-btn">Add to Watchlist</button>
+                                            <button class="action-btn">Share</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="event-pricing">
+                                        <span class="rating-badge limited-badge">
+                                            <i class="fas fa-star"></i> 4.7
+                                        </span>
+                                        <h3 class="price-large">$80</h3>
+                                        <p class="price-note">1 day, 2 people</p>
+                                        <button class="view-tickets-btn" onclick="window.location.href='event_details.html'">Book Now</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-wrapper">
+                        <nav aria-label="Events pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <!-- Brand and About -->                <div class="col-lg-4 mb-4">
+                    <div class="footer-brand">
+                        <img src="logo.png" alt="TEPIS Logo" class="brand-logo">
+                        <span>TEPIS</span>
+                    </div>
+                    <p class="mb-4">Discover and book the most exciting events happening in your city. From concerts to workshops, we've got you covered.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <a href="index.html">Home</a>
+                    <a href="events.html">Browse Events</a>
+                    <a href="event_details.html">Trip Planning</a>
+                    <a href="index.html#about">About Us</a>
+                    <a href="#">Contact</a>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5>Support</h5>
+                    <a href="#">Help Center</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">FAQs</a>
+                    <a href="#">Contact Support</a>
+                </div>
+
+                <!-- Contact Info -->                <div class="col-lg-4 col-md-4 mb-4">
+                    <h5>Subscribe to Our Newsletter</h5>
+                    <p class="mb-3">Stay updated with the latest events and special offers</p>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Your email address">
+                        <button class="btn btn-primary" type="button">Subscribe</button>
+                    </div>
+                    <div class="mt-4">
+                        <p><i class="fas fa-envelope"></i> info@tepis.com</p>
+                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    </div>
+                </div>
+            </div>            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; 2025 TEPIS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value.trim();
+                if (searchTerm) {
+                    // Filter events based on search term
+                    filterEvents(searchTerm);
+                }
+            }
+        });
+
+        // Filter functionality
+        document.querySelector('.filter-btn').addEventListener('click', function() {
+            applyFilters();
+        });
+
+        function filterEvents(searchTerm) {
+            const events = document.querySelectorAll('.event-item');
+            events.forEach(event => {
+                const title = event.querySelector('.event-title-large').textContent.toLowerCase();
+                const description = event.querySelector('.event-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm.toLowerCase()) || description.includes(searchTerm.toLowerCase())) {
+                    event.style.display = 'block';
+                } else {
+                    event.style.display = 'none';
+                }
+            });
+            updateResultsCount();
+        }
+
+        function applyFilters() {
+            // Get selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('.category-filters input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.nextElementSibling.textContent.toLowerCase());
+            });
+
+            // Get selected price ranges
+            const selectedPriceRanges = [];
+            document.querySelectorAll('.price-filters input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedPriceRanges.push(checkbox.nextElementSibling.textContent.toLowerCase());
+            });
+
+            // Filter events
+            const events = document.querySelectorAll('.event-item');
+            events.forEach(event => {
+                let showEvent = true;
+
+                // Category filter
+                if (selectedCategories.length > 0) {
+                    const eventCategory = event.querySelector('.event-category').textContent.toLowerCase();
+                    showEvent = selectedCategories.some(cat => eventCategory.includes(cat.replace(' events', '').replace('festivals', 'festival')));
+                }
+
+                // Price filter (simplified)
+                if (showEvent && selectedPriceRanges.length > 0) {
+                    const priceText = event.querySelector('.price-large').textContent;
+                    const price = parseInt(priceText.replace('$', ''));
+                    
+                    let matchesPrice = false;
+                    selectedPriceRanges.forEach(range => {
+                        if (range.includes('free') && price === 0) matchesPrice = true;
+                        if (range.includes('under $50') && price < 50) matchesPrice = true;
+                        if (range.includes('$50 - $100') && price >= 50 && price <= 100) matchesPrice = true;
+                        if (range.includes('$100 - $200') && price >= 100 && price <= 200) matchesPrice = true;
+                        if (range.includes('$200+') && price > 200) matchesPrice = true;
+                    });
+                    showEvent = matchesPrice;
+                }
+
+                event.style.display = showEvent ? 'block' : 'none';
+            });
+
+            updateResultsCount();
+        }
+
+        function updateResultsCount() {
+            const visibleEvents = document.querySelectorAll('.event-item[style*="block"], .event-item:not([style*="none"])').length;
+            document.querySelector('.results-count').textContent = `${visibleEvents} events found`;
+        }
+
+        // Add click handlers to event items
+        document.querySelectorAll('.event-item').forEach(event => {
+            event.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    window.location.href = 'event_details.html';
+                }
+            });
+        });
+
+        // Initialize with URL parameters
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTerm = urlParams.get('search');
+            const category = urlParams.get('category');
+
+            if (searchTerm) {
+                document.querySelector('.search-input').value = searchTerm;
+                filterEvents(searchTerm);
+            }
+
+            if (category) {
+                // Check the appropriate category filter
+                const categoryInputs = document.querySelectorAll('.category-filters input[type="checkbox"]');
+                categoryInputs.forEach(input => {
+                    const label = input.nextElementSibling.textContent.toLowerCase();
+                    if (label.includes(category.toLowerCase())) {
+                        input.checked = true;
+                    } else {
+                        input.checked = false;
+                    }
+                });
+                applyFilters();
+            }
+        });
+    </script>
+</body>
+</html>

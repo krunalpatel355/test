@@ -3,8 +3,8 @@
 Main application module for the Flask web application.
 """
 
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
-from flask import Flask, render_template, jsonify
 from datetime import datetime
 
 # Initialize Flask app
@@ -17,9 +17,22 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
 @app.route('/')
-def home():
-    """Render the home page."""
+def index():
     return render_template('index.html')
+
+@app.route('/events')
+def events():
+    return render_template('events.html')
+
+@app.route('/auth', methods=['GET', 'POST'])
+def auth():
+    if request.method == 'POST':
+        # Here you would typically handle login/authentication
+        username = request.form.get('username')
+        password = request.form.get('password')
+        # Add your authentication logic here
+        return redirect(url_for('index'))
+    return render_template('auth.html')
 
 
 
