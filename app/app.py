@@ -3,7 +3,7 @@
 Main application module for the Flask web application.
 """
 
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory,jsonify
 import os
 from datetime import datetime
 

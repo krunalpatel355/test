@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEPIS - Explore Events</title>
+    <title>TEPIS - Event and Trip Planning System</title>
+    <link rel="preload" as="image" href="{{ url_for('static', filename='home.jpg') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <img src="logo.png" alt="TEPIS Logo" class="brand-logo">
-                TEPIS
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="TEPIS Logo" class="brand-logo">
+                TEPIS    
             </a>
-            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
