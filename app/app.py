@@ -6,6 +6,7 @@ Main application module for the Flask web application.
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory,jsonify
 import os
 from datetime import datetime
+from pymongo import MongoClient
 
 # Initialize Flask app
 app = Flask(__name__, 
@@ -16,13 +17,57 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
+# MongoDB connection
+mongo_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+client = MongoClient(mongo_uri)
+db = client['TEPIS']
+events_collection = db['events']
+
+def get_featured_events():
+    """Get featured events from MongoDB"""
+    return list(events_collection.find().limit(6))
+
+def get_upcoming_events():
+    """Get upcoming events from MongoDB"""
+    current_date = datetime.now()
+    return list(events_collection.find({
+        'start_date': {'$gte': current_date}
+    }).sort('start_date', 1).limit(9))
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    featured_events = get_featured_events()
+    upcoming_events = get_upcoming_events()
+    
+    return render_template('index.html', 
+                         featured_events=featured_events,
+                         upcoming_events=upcoming_events)
 
 @app.route('/events')
 def events():
-    return render_template('events.html')
+    current_date = datetime.now()
+    page = request.args.get('page', 1, type=int)
+    per_page = 7  # Number of events per page
+
+    # Get total count for pagination
+    total_events = events_collection.count_documents({'start_date': {'$gte': current_date}})
+    
+    # Get events for current page
+    events_list = list(events_collection.find({
+        'start_date': {'$gte': current_date}
+    }).sort('start_date', 1).skip((page - 1) * per_page).limit(per_page))
+    
+    # Calculate total pages
+    total_pages = (total_events + per_page - 1) // per_page
+    
+    # Get unique locations for filter
+    locations = events_collection.distinct('city_name')
+    
+    return render_template('events.html', 
+                         events=events_list,
+                         current_page=page,
+                         total_pages=total_pages,
+                         locations=locations)
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
@@ -33,14 +78,6 @@ def auth():
         # Add your authentication logic here
         return redirect(url_for('index'))
     return render_template('auth.html')
-
-
-
-
-
-
-
-
 
 @app.route('/health')
 def health_check():
