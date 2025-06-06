@@ -118,33 +118,70 @@ def health_check():
 @app.route('/api/events')
 def filter_events():
     """API endpoint for filtered events"""
-    current_date = datetime.now()
-    
-    # Get filter parameters
-    category = request.args.get('category', 'all')
-    location = request.args.get('location', 'all')
-    
-    # Build the filter query
-    query = {'start_date': {'$gte': current_date}}
-    
-    if category != 'all':
-        query['event_type'] = category
-    if location != 'all':
-        query['city_name'] = location
-    
-    # Get filtered events
-    filtered_events = list(events_collection.find(query).sort('start_date', 1))
-    
-    # Convert ObjectId and datetime objects to string for JSON serialization
-    for event in filtered_events:
-        event['_id'] = str(event['_id'])
-        event['start_date'] = event['start_date'].isoformat()
-        event['end_date'] = event['end_date'].isoformat()
-    
-    return jsonify({
-        'events': filtered_events,
-        'total': len(filtered_events)
-    })
+    try:
+        current_date = datetime.now()
+        
+        # Get raw filter parameters and log them
+        category = request.args.get('category')
+        location = request.args.get('location')
+        print(f"Raw filter parameters - category: {category}, location: {location}")
+        
+        # Build the filter query starting with date filter
+        query = {'start_date': {'$gte': current_date}}
+        
+        # Add category filter if provided and not 'all'
+        if category and category.lower() != 'all':
+            query['event_type'] = category
+            print(f"Added category filter: {category}")
+            
+        # Add location filter if provided and not 'all'
+        if location and location.lower() != 'all':
+            query['city_name'] = location
+            print(f"Added location filter: {location}")
+            
+        print(f"Final MongoDB query: {query}")
+        
+        # First get all events to check available data
+        all_events = list(events_collection.find({'start_date': {'$gte': current_date}}))
+        print(f"Total events in database: {len(all_events)}")
+        if all_events:
+            print(f"Available event types: {set(e.get('event_type') for e in all_events)}")
+            print(f"Available locations: {set(e.get('city_name') for e in all_events)}")
+        
+        # Get filtered events
+        filtered_events = list(events_collection.find(query).sort('start_date', 1))
+        print(f"Number of events after filtering: {len(filtered_events)}")
+        
+        # Convert ObjectId and datetime objects to string for JSON serialization
+        for event in filtered_events:
+            event['_id'] = str(event['_id'])
+            if isinstance(event['start_date'], datetime):
+                event['start_date'] = event['start_date'].isoformat()
+            if isinstance(event['end_date'], datetime):
+                event['end_date'] = event['end_date'].isoformat()
+            print(f"Matched event: {event.get('event_title')} - Type: {event.get('event_type')} in {event.get('city_name')}")
+        
+        response_data = {
+            'events': filtered_events,
+            'total': len(filtered_events),
+            'filters_applied': {
+                'category': category,
+                'location': location
+            },
+            'query_used': str(query)
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Error in filter_events: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': str(e),
+            'events': [],
+            'total': 0
+        }), 500
 
 @app.errorhandler(404)
 def not_found(error):

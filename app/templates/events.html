@@ -228,28 +228,41 @@
             const locationFilter = document.getElementById('locationFilter');
             const eventsContainer = document.querySelector('.events-list');
             const resultsCount = document.querySelector('.results-count');
-            let currentCategory = 'all';
-            let currentLocation = 'all';
+            
+            // Global state for filters
+            const filterState = {
+                category: 'all',
+                location: 'all'
+            };
 
             // Function to format date
             function formatDate(dateStr) {
                 const date = new Date(dateStr);
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            }
-
-            // Function to update events list
+            }            // Function to update events list
             function updateEvents() {
                 // Show loading state
                 eventsContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
+                // Build query string with both filters always included
+                const params = new URLSearchParams({
+                    category: filterState.category,
+                    location: filterState.location
+                });
+
+                // Debug logging
+                console.log('Current filter state:', filterState);
+                console.log('Request URL:', `/api/events?${params.toString()}`);
+
                 // Make API request
-                fetch(`/api/events?category=${currentCategory}&location=${currentLocation}`)
+                fetch(`/api/events?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Received data:', data);
                         resultsCount.textContent = `Showing ${data.total} events`;
                         
                         if (data.events.length === 0) {
-                            eventsContainer.innerHTML = '<div class="text-center">No events found matching your criteria.</div>';
+                            eventsContainer.innerHTML = '<div class="text-center p-4">No events found matching your criteria.</div>';
                             return;
                         }
 
@@ -285,7 +298,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        eventsContainer.innerHTML = '<div class="text-center">Error loading events. Please try again.</div>';
+                        eventsContainer.innerHTML = '<div class="text-center p-4">Error loading events. Please try again.</div>';
                     });
             }
 
@@ -294,16 +307,19 @@
                 item.addEventListener('click', function() {
                     categoryItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
-                    currentCategory = this.dataset.category;
+                    filterState.category = this.dataset.category;
                     updateEvents();
                 });
             });
 
             // Location change handler
             locationFilter.addEventListener('change', function() {
-                currentLocation = this.value;
+                filterState.location = this.value;
                 updateEvents();
             });
+
+            // Initial load
+            updateEvents();
         });
     </script>
 </body>
