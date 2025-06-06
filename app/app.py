@@ -115,6 +115,37 @@ def health_check():
         'version': '1.0.0'
     })
 
+@app.route('/api/events')
+def filter_events():
+    """API endpoint for filtered events"""
+    current_date = datetime.now()
+    
+    # Get filter parameters
+    category = request.args.get('category', 'all')
+    location = request.args.get('location', 'all')
+    
+    # Build the filter query
+    query = {'start_date': {'$gte': current_date}}
+    
+    if category != 'all':
+        query['event_type'] = category
+    if location != 'all':
+        query['city_name'] = location
+    
+    # Get filtered events
+    filtered_events = list(events_collection.find(query).sort('start_date', 1))
+    
+    # Convert ObjectId and datetime objects to string for JSON serialization
+    for event in filtered_events:
+        event['_id'] = str(event['_id'])
+        event['start_date'] = event['start_date'].isoformat()
+        event['end_date'] = event['end_date'].isoformat()
+    
+    return jsonify({
+        'events': filtered_events,
+        'total': len(filtered_events)
+    })
+
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors."""
