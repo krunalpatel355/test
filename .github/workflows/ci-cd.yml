@@ -8,10 +8,15 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
+  MONGODB_URI: 'mongodb://localhost:27017'
 
-jobs:
-  test:
+jobs:  test:
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
     
     steps:
     - uses: actions/checkout@v4
