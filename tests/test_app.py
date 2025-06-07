@@ -9,7 +9,8 @@ def test_home_page(client):
     """Test the home page loads correctly."""
     response = client.get('/')
     assert response.status_code == 200
-    assert b'Welcome to My Application' in response.data
+    assert b'Test Event 1' in response.data
+    assert b'Test Event 2' in response.data
 
 
 def test_health_check(client):
