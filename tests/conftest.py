@@ -66,7 +66,6 @@ def client(mongodb):
     
     # Update the app's MongoDB connection to use test database
     app.config['MONGODB_URI'] = 'mongodb://localhost:27017/'
-    global db
     app.mongodb_client = MongoClient(app.config['MONGODB_URI'])
     app.db = app.mongodb_client['TEPIS_TEST']
     
