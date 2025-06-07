@@ -9,8 +9,14 @@ def test_home_page(client):
     """Test the home page loads correctly."""
     response = client.get('/')
     assert response.status_code == 200
-    assert b'Test Event 1' in response.data
-    assert b'Test Event 2' in response.data
+    data = response.data.decode('utf-8')
+    # Check for event titles
+    assert 'Test Event 1' in data
+    assert 'Test Event 2' in data
+    # Check for event details
+    assert 'Test Venue 1' in data
+    assert '$100' in data
+    assert 'A test conference event' in data
 
 
 def test_health_check(client):
