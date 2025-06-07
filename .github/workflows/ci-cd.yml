@@ -13,6 +13,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+    
     steps:
     - uses: actions/checkout@v4
     
@@ -33,12 +39,28 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov
+        pip install pytest pytest-cov flake8
+    
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Test with pytest
+      run: |
+        pytest tests/ --cov=app --cov-report=xml --cov-report=html
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
 
   build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test'
     
     steps:
     - uses: actions/checkout@v4
@@ -66,15 +88,16 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: production
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test'
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     
     steps:
-    - name: Deploy to production
+    - name: Deploy to environment
       run: |
-        echo "Deploying to production environment"
-        # Add your deployment commands here
-        # For example, if using a cloud provider:
-        # - Update container service
-        # - Run database migrations
-        # - Update load balancer configuration
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "Deploying to production environment"
+          # Add production deployment commands here
+        else
+          echo "Deploying to staging environment"
+          # Add staging deployment commands here
+        fi
