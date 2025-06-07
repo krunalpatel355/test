@@ -15,10 +15,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
-      python-version: '3.11'
+      with:
+        python-version: '3.11'
     
     - name: Cache pip dependencies
       uses: actions/cache@v3
