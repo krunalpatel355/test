@@ -1,30 +1,29 @@
 version: '3.8'
 
 services:
-  flask-app:
+  web:
     build: .
     ports:
-      - "5000:5000"
+      - "5000:5000"    
     environment:
-      - FLASK_ENV=development
-      - MONGO_URI=mongodb://mongodb:27017/myapp
-    volumes:
-      - .:/app
+      - MONGODB_URI=mongodb://mongodb:27017/TEPIS
     depends_on:
       - mongodb
-    restart: unless-stopped
+    volumes:
+      - .:/app
+    networks:
+      - app-network
 
   mongodb:
-    image: mongo:7.0
-    container_name: mongodb
-    restart: unless-stopped
+    image: mongo:latest
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_DATABASE=myapp
-    volumes:
-      - mongodb_data:/data/db
-    command: mongod --quiet
+
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   mongodb_data:
+    driver: local

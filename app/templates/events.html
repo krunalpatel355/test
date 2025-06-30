@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEPIS - Event and Trip Planning System</title>
+    <link rel="preload" as="image" href="{{ url_for('static', filename='home.jpg') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <style>
+        .category-list {
+            margin-bottom: 20px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .category-item:hover {
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+        .category-item.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .category-count {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            min-width: 30px;
+            text-align: center;
+        }
+        .category-item:not(.active) .category-count {
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+        .location-filter select {
+            border-radius: 6px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="TEPIS Logo" class="brand-logo">
+                TEPIS    
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('events') }}">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="event_details.html">Trip Planning</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#about">About</a></li>
+                </ul>
+                <div class="search-container me-3">
+                    <input type="text" class="search-input" placeholder="Search for events, venues, or organizers...">
+                </div>
+                <div class="user-menu">
+                    <i class="fas fa-bell" style="color: #64748b; font-size: 1.2rem;"></i>
+                    <a href="{{ url_for('auth') }}" class="user-avatar" style="text-decoration: none; color: inherit;">A</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Events Section -->
+    <div class="container">
+        <div class="row">
+            <!-- Left Side Content -->
+            <div class="col-lg-4">
+                <div class="left-sidebar">
+                    <h2 class="sidebar-title">Categories</h2>
+                    <div class="category-list">
+                        <div class="category-item active" data-category="all">
+                            All Events <span class="category-count">{{ total_events }}</span>
+                        </div>
+                        {% for category in categories %}
+                        <div class="category-item" data-category="{{ category._id }}">
+                            {{ category._id }} <span class="category-count">{{ category.count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <h2 class="sidebar-title mt-4">Location</h2>
+                    <div class="location-filter">
+                        <select class="form-select" id="locationFilter">
+                            <option value="all">All Locations</option>
+                            {% for location in locations %}
+                            <option value="{{ location._id }}">{{ location._id }} ({{ location.count }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Events List -->
+            <div class="col-lg-8">
+                <div class="events-header">
+                    <h1 class="events-title">Discover Events</h1>
+                    <p class="events-subtitle">Find the perfect event that matches your interests</p>
+                    <p class="results-count">Showing {{ events|length }} events</p>
+                </div>
+
+                <!-- Event Cards -->
+                <div class="events-list">
+                    {% for event in events %}
+                    <div class="event-card">
+                        <div class="event-image" {% if event.image_url %}style="background-image: url('{{ event.image_url }}')"{% else %}style="background-image: url('{{ url_for('static', filename='home.jpg') }}')"{% endif %}>
+                            <div class="event-date">{{ event.start_date.strftime('%b %d') }} - {{ event.end_date.strftime('%b %d') }}</div>
+                            <div class="event-time">{{ event.start_time }} - {{ event.end_time }}</div>
+                            <div class="event-type">{{ event.event_type }}</div>
+                        </div>
+                        <div class="event-content">
+                            <h3 class="event-title">{{ event.event_title }}</h3>
+                            <p class="event-summary">{{ event.summary }}</p>
+                            <div class="event-location">
+                                <i class="fas fa-map-marker-alt"></i> 
+                                {{ event.event_place }}, {{ event.city_name }}
+                            </div>
+                            <div class="event-footer">
+                                <div class="event-info">
+                                    <div class="event-host">By {{ event.event_host }}</div>
+                                    <div class="event-price">{{ event.ticket_price }}</div>
+                                </div>
+                                <a href="{{ event.booking_url }}" class="btn-book-now" target="_blank">Book Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('events', page=current_page-1) if current_page > 1 else '#' }}">Previous</a>
+                        </li>
+                        {% for page in range(1, total_pages + 1) %}
+                        <li class="page-item {% if page == current_page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('events', page=page) }}">{{ page }}</a>
+                        </li>
+                        {% endfor %}
+                        <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('events', page=current_page+1) if current_page < total_pages else '#' }}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <!-- Brand and About -->
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-brand">
+                        <div class="sphere-icon"></div>
+                        <h4 class="ms-2 mb-0" style="color: white;">TEPIS</h4>
+                    </div>
+                    <p class="mb-4">Discover and book the most exciting events happening in your city. From concerts to workshops, we've got you covered.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('events') }}">Events</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Categories</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Music Events</a></li>
+                        <li><a href="#">Food & Drinks</a></li>
+                        <li><a href="#">Workshops</a></li>
+                        <li><a href="#">Sports</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-4 col-md-6">
+                    <h5>Contact Us</h5>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Event Street, City, Country</li>
+                        <li><i class="fas fa-phone"></i> +1 234 567 890</li>
+                        <li><i class="fas fa-envelope"></i> info@tepis.com</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap and other scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryItems = document.querySelectorAll('.category-item');
+            const locationFilter = document.getElementById('locationFilter');
+            const eventsContainer = document.querySelector('.events-list');
+            const resultsCount = document.querySelector('.results-count');
+            
+            // Global state for filters
+            const filterState = {
+                category: 'all',
+                location: 'all'
+            };
+
+            // Function to format date
+            function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }            // Function to update events list
+            function updateEvents() {
+                // Show loading state
+                eventsContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+                // Build query string with both filters always included
+                const params = new URLSearchParams({
+                    category: filterState.category,
+                    location: filterState.location
+                });
+
+                // Debug logging
+                console.log('Current filter state:', filterState);
+                console.log('Request URL:', `/api/events?${params.toString()}`);
+
+                // Make API request
+                fetch(`/api/events?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data);
+                        resultsCount.textContent = `Showing ${data.total} events`;
+                        
+                        if (data.events.length === 0) {
+                            eventsContainer.innerHTML = '<div class="text-center p-4">No events found matching your criteria.</div>';
+                            return;
+                        }
+
+                        // Update events list
+                        const eventCards = data.events.map(event => {
+                            const defaultImage = "{{ url_for('static', filename='home.jpg') }}";
+                            return `
+                                <div class="event-card">
+                                    <div class="event-image" style="background-image: url('${event.image_url || defaultImage}')">
+                                        <div class="event-date">${formatDate(event.start_date)} - ${formatDate(event.end_date)}</div>
+                                        <div class="event-time">${event.start_time} - ${event.end_time}</div>
+                                        <div class="event-type">${event.event_type}</div>
+                                    </div>
+                                    <div class="event-content">
+                                        <h3 class="event-title">${event.event_title}</h3>
+                                        <p class="event-summary">${event.summary}</p>
+                                        <div class="event-location">
+                                            <i class="fas fa-map-marker-alt"></i> 
+                                            ${event.event_place}, ${event.city_name}
+                                        </div>
+                                        <div class="event-footer">
+                                            <div class="event-info">
+                                                <div class="event-host">By ${event.event_host}</div>
+                                                <div class="event-price">${event.ticket_price}</div>
+                                            </div>
+                                            <a href="${event.booking_url}" class="btn-book-now" target="_blank">Book Now</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        eventsContainer.innerHTML = eventCards.join('');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        eventsContainer.innerHTML = '<div class="text-center p-4">Error loading events. Please try again.</div>';
+                    });
+            }
+
+            // Category click handler
+            categoryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    categoryItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    filterState.category = this.dataset.category;
+                    updateEvents();
+                });
+            });
+
+            // Location change handler
+            locationFilter.addEventListener('change', function() {
+                filterState.location = this.value;
+                updateEvents();
+            });
+
+            // Initial load
+            updateEvents();
+        });
+    </script>
+</body>
+</html>
